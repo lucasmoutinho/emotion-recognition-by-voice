@@ -1,2 +1,10 @@
+# pip3 install -r requirements.txt
+
 pandas
 sklearn
+keras
+numpy
+tensorflow
+jupyter
+ipykernel
+ipyparallel
