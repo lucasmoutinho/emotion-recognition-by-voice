@@ -3,8 +3,8 @@
 pandas
 sklearn
 keras
-numpy
 tensorflow
 jupyter
 ipykernel
 ipyparallel
+numpy
