@@ -59,16 +59,16 @@ print(y_test.shape)
 
 # define the keras model
 model = Sequential()
-model.add(Dense(50, input_dim=13, activation='relu')) #input_dim = number of features. Hidden layer has 50, 20. Output layer has 7 (because of binarize)
-model.add(Dense(20, activation='relu'))
+model.add(Dense(30, input_dim=13, activation='relu')) #input_dim = number of features. Hidden layer has 50, 20. Output layer has 7 (because of binarize)
+model.add(Dense(15, activation='relu'))
 model.add(Dense(7, activation='sigmoid'))
 
 # compile the keras model
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Define bath and epochs
-batch_size = 128
-epochs = 12
+batch_size = 64
+epochs = 100
 
 # Fit model
 model.fit(X_train, y_train,
