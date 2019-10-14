@@ -5,6 +5,4 @@ sklearn
 keras
 tensorflow
 jupyter
-ipykernel
-ipyparallel
 numpy

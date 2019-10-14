@@ -1,42 +1,46 @@
-import pandas as pd # to read csv
-from sklearn.model_selection import train_test_split # to split dataset into train and test
+# Neural network imports
+from numpy import loadtxt # Linear Algebra
 from sklearn import preprocessing
-
-# This Python 3 environment comes with many helpful analytics libraries installed
-# It is defined by the kaggle/python docker image: https://github.com/kaggle/docker-python
-# For example, here's several helpful packages to load in 
-
-import numpy as np # linear algebra
+from sklearn.model_selection import train_test_split # to split dataset into train and test
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.layers import Dropout
-from keras.layers import Flatten
-from keras.layers.convolutional import Convolution2D
-from keras.layers.convolutional import MaxPooling2D
-from sklearn.preprocessing import LabelEncoder,OneHotEncoder
-from keras import backend as K
 
+# load the dataset
+dataset = loadtxt('voice-emotion-database.csv', delimiter=',', skiprows=1) # Skip the header
 
-# Read dataset
-data = pd.read_csv("dataset.csv")
+# See dataset details
+print(dataset[:3])
+print(dataset.shape)
 
-print(data.head())
-print(data.shape)
+# split into input (X) and output (y) variables
+X = dataset[:,3:16] # Only the MFCC features
+y = dataset[:,19] # Emotion label
 
-# X is for features and y is for labels
-y = data.emotion
-X = data.drop('emotion', axis=1)
+# See X and y details
+print(X[:3])
+print(X.shape)
 
-# Split the ataset in train and test
+print(y[:3])
+print(y.shape)
+
+# Split the dataset in train and test
 X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.3)
+
+# See Details
 print("\nX_train:\n")
-print(X_train.head())
+print(X_train[:3])
 print(X_train.shape)
-print(y_train.shape)
 
 print("\nX_test:\n")
-print(X_test.head())
+print(X_test[:3])
 print(X_test.shape)
+
+print("\ny_train:\n")
+print(y_train[:3])
+print(y_train.shape)
+
+print("\ny_test:\n")
+print(y_test[:3])
 print(y_test.shape)
 
 # Binarize labels
@@ -44,30 +48,39 @@ lb = preprocessing.LabelBinarizer()
 y_train = lb.fit_transform(y_train)
 y_test = lb.fit_transform(y_test)
 
-# DUVIDA: CNN TEM COMO INPUT IMAGENS. PRECISO CONVERTER CSV PARA IMAGEM? SERIA
-# NECESSÁRIO PARA PRE-PROCESSING?
+# See Details
+print("\ny_train:\n")
+print(y_train[:3])
+print(y_train.shape)
 
-# # Building the model
-# model = Sequential()
-# K.common.image_dim_ordering()
-# model.add(Convolution2D(30, 5, 5, border_mode= 'valid' , input_shape=(1, 28, 28),activation= 'relu' ))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Convolution2D(15, 3, 3, activation= 'relu' ))
-# model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Dropout(0.2))
-# model.add(Flatten())
-# model.add(Dense(128, activation= 'relu' ))
-# model.add(Dense(50, activation= 'relu' ))
-# model.add(Dense(10, activation= 'softmax' ))
+print("\ny_test:\n")
+print(y_test[:3])
+print(y_test.shape)
 
-# # Compile model
-# model.compile(loss= 'categorical_crossentropy' , optimizer= 'adam' , metrics=[ 'accuracy' ])
+# define the keras model
+model = Sequential()
+model.add(Dense(50, input_dim=13, activation='relu')) #input_dim = number of features. Hidden layer has 50, 20. Output layer has 7 (because of binarize)
+model.add(Dense(20, activation='relu'))
+model.add(Dense(7, activation='sigmoid'))
 
-# # Fit model
-# model.fit(X_train, y_train, epochs=20, batch_size= 160)
+# compile the keras model
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-# # Score model
-# score = model.evaluate(X_test, y_test, batch_size=128)
+# Define bath and epochs
+batch_size = 128
+epochs = 12
 
-# # Model Summary
-# model.summary()
+# Fit model
+model.fit(X_train, y_train,
+        batch_size=batch_size,
+        epochs=epochs,
+        verbose=1,
+        validation_data=(X_test, y_test))
+
+# Score Model
+score = model.evaluate(X_test, y_test, verbose=1)
+print('Test loss:', score[0])
+print('Test accuracy:', score[1])
+
+# Model Summary
+model.summary()
