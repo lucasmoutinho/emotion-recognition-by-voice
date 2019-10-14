@@ -1,3 +1,6 @@
+## CNN MODEL FOR VOICE EMOTION DATABASE
+## Coded by: Lucas da Silva Moutinho
+
 # Neural network imports
 from numpy import loadtxt
 from keras.models import Sequential

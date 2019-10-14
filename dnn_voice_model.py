@@ -1,3 +1,6 @@
+## DNN MODEL FOR VOICE EMOTION DATABASE
+## Coded by: Lucas da Silva Moutinho
+
 # Neural network imports
 from numpy import loadtxt # Linear Algebra
 from sklearn import preprocessing
