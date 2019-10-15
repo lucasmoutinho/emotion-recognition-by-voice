@@ -22,8 +22,8 @@ print(df.shape)
 X = df[df.columns[3:16]] # Only the MFCC features
 y = df.emotion # Emotion label
 
-# Normalization of input features in X
-X = normalize(X)
+# # Normalization of input features in X
+# X = normalize(X)
 
 # See X and y details
 print("\nX:\n")
@@ -54,54 +54,54 @@ print("\ny_test:\n")
 print(y_test.head())
 print(y_test.shape)
 
-# # Standarize by removing mean and scaling to unit variance
-# X_train, X_test = standarization_unit_variance(X_train, X_test)
+# Standarize by removing mean and scaling to unit variance
+X_train, X_test = standarization_unit_variance(X_train, X_test)
 
-# # See details after standarization
-# print("\nX_train normalized:\n")
-# print (X_train.head())
-# print (X_train.shape)
+# See details after standarization
+print("\nX_train normalized:\n")
+print (X_train.head())
+print (X_train.shape)
 
-# print("\nX_test normalized:\n")
-# print (X_train.head())
-# print (X_train.shape)
+print("\nX_test normalized:\n")
+print (X_train.head())
+print (X_train.shape)
 
-# # Create categorical matrices
-# y_train = to_categorical(y_train)
-# y_test = to_categorical(y_test)
+# Create categorical matrices
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
 
-# # See Details
-# print("\ny_train:\n")
-# print(y_train[:3])
-# print(y_train.shape)
+# See Details
+print("\ny_train:\n")
+print(y_train[:3])
+print(y_train.shape)
 
-# print("\ny_test:\n")
-# print(y_test[:3])
-# print(y_test.shape)
+print("\ny_test:\n")
+print(y_test[:3])
+print(y_test.shape)
 
-# # define the keras model
-# model = Sequential()
-# model.add(Dense(60, input_dim=13, activation='relu')) #input_dim = number of features. Hidden layer has 50, 20. Output layer has 7 (because of binarize)
-# model.add(Dense(7, activation='softmax'))
+# define the keras model
+model = Sequential()
+model.add(Dense(60, input_dim=13, activation='relu')) #input_dim = number of features. Hidden layer has 50, 20. Output layer has 7 (because of binarize)
+model.add(Dense(7, activation='softmax'))
 
-# # compile the keras model
-# model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+# compile the keras model
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-# # Define bath and epochs
-# batch_size = 64
-# epochs = 100
+# Define bath and epochs
+batch_size = 64
+epochs = 100
 
-# # Fit model
-# model.fit(X_train, y_train,
-#         batch_size=batch_size,
-#         epochs=epochs,
-#         verbose=1,
-#         validation_data=(X_test, y_test))
+# Fit model
+model.fit(X_train, y_train,
+        batch_size=batch_size,
+        epochs=epochs,
+        verbose=1,
+        validation_data=(X_test, y_test))
 
-# # Score Model
-# score = model.evaluate(X_test, y_test, verbose=1)
-# print('Test loss:', score[0])
-# print('Test accuracy:', score[1])
+# Score Model
+score = model.evaluate(X_test, y_test, verbose=1)
+print('Test loss:', score[0])
+print('Test accuracy:', score[1])
 
-# # Model Summary
-# model.summary()
+# Model Summary
+model.summary()
