@@ -9,7 +9,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.utils import to_categorical
 import pandas as pd
-from prepare_data import standarization_unit_variance
+from prepare_data import standarization_unit_variance, normalize
 
 # Get dataset
 df = pd.read_csv("voice-emotion-database.csv", sep=",")
@@ -22,6 +22,8 @@ print(df.shape)
 X = df[df.columns[3:16]] # Only the MFCC features
 y = df.emotion # Emotion label
 
+# Normalization of input features in X
+X = normalize(X)
 
 # See X and y details
 print("\nX:\n")
@@ -52,17 +54,17 @@ print("\ny_test:\n")
 print(y_test.head())
 print(y_test.shape)
 
-# Standarize by removing mean and scaling to unit variance
-X_train, X_test = standarization_unit_variance(X_train, X_test)
+# # Standarize by removing mean and scaling to unit variance
+# X_train, X_test = standarization_unit_variance(X_train, X_test)
 
-# See details after standarization
-print("\nX_train normalized:\n")
-print (X_train.head())
-print (X_train.shape)
+# # See details after standarization
+# print("\nX_train normalized:\n")
+# print (X_train.head())
+# print (X_train.shape)
 
-print("\nX_test normalized:\n")
-print (X_train.head())
-print (X_train.shape)
+# print("\nX_test normalized:\n")
+# print (X_train.head())
+# print (X_train.shape)
 
 # # Create categorical matrices
 # y_train = to_categorical(y_train)

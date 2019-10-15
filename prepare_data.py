@@ -1,6 +1,15 @@
 from sklearn import preprocessing
 import pandas as pd
 
+# This function returns a normalized version of the input dataframe 
+def normalize(df):
+    normalized_df = df.copy()
+    for feature_name in df.columns:
+        max_value = df[feature_name].max()
+        min_value = df[feature_name].min()
+        normalized_df[feature_name] = (df[feature_name] - min_value) / (max_value - min_value)
+    return normalized_df
+
 # This function Standarize by removing mean and scaling to unit variance
 # It receives X_train and X_test and returns its update values
 def standarization_unit_variance(X_train, X_test):
