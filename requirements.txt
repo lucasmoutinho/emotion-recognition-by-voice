@@ -1,0 +1,8 @@
+# pip3 install -r requirements.txt
+
+pandas
+sklearn
+keras
+tensorflow
+jupyter
+numpy
