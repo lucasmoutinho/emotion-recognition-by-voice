@@ -18,6 +18,8 @@ from prepare_data import standarization_unit_variance, normalize
 
 # Get dataset
 df = pd.read_csv("voice-emotion-database.csv", sep=",")
+# cols = df.columns[df.columns.isin(['gender'])]
+# df = df[(df[cols] == 0).all(1)] # Only desired gender
 
 # See dataset details
 print(df.head())
@@ -88,20 +90,20 @@ print(X_traincnn.shape)
 # define the keras model
 model = Sequential()
 
-model.add(Conv1D(64, 5,padding='same', input_shape=(13,1)))
+model.add(Conv1D(256, 5,padding='same', input_shape=(13,1)))
 model.add(Activation('relu'))
-model.add(Conv1D(32, 5,padding='same'))
+model.add(Conv1D(128, 5,padding='same'))
 model.add(Activation('relu'))
 model.add(Dropout(0.1))
 model.add(MaxPooling1D(pool_size=(8)))
-model.add(Conv1D(32, 5,padding='same',))
+model.add(Conv1D(128, 5,padding='same',))
 model.add(Activation('relu'))
-# model.add(Conv1D(32, 5,padding='same',))
+# model.add(Conv1D(128, 5,padding='same',))
 # model.add(Activation('relu'))
-# model.add(Conv1D(32, 5,padding='same',))
+# model.add(Conv1D(128, 5,padding='same',))
 # model.add(Activation('relu'))
 # model.add(Dropout(0.2))
-model.add(Conv1D(32, 5,padding='same',))
+model.add(Conv1D(128, 5,padding='same',))
 model.add(Activation('relu'))
 model.add(Flatten())
 model.add(Dense(7))
