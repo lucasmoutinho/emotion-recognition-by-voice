@@ -4,6 +4,8 @@
 # Neural network imports
 import numpy as np
 import pandas as pd
+import tensorflow as tf
+import seaborn as sns
 import keras
 import functools
 import matplotlib.pyplot as plt
@@ -22,8 +24,8 @@ df = pd.read_csv("voice-emotion-database.csv", sep=",")
 # cols = df.columns[df.columns.isin(['gender'])]
 # df = df[(df[cols] == 1).all(1)] # Only desired gender
 
-# Create more labels
-df['emotion'] = np.where((df.gender == 1), df.emotion + 6, df.emotion) # distinct labels for man and woman emotions
+# # Create more labels
+# df['emotion'] = np.where((df.gender == 1), df.emotion + 6, df.emotion) # distinct labels for man and woman emotions
 
 # See dataset details
 print(df.head())
@@ -110,7 +112,7 @@ model.add(Activation('relu'))
 model.add(Conv1D(64, 5,padding='same',))
 model.add(Activation('relu'))
 model.add(Flatten())
-model.add(Dense(13))
+model.add(Dense(7))
 model.add(Activation('softmax'))
 # opt = keras.optimizers.rmsprop(lr=0.00001, decay=1e-6)
 
@@ -125,7 +127,7 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 
 # Define bath and epochs
 batch_size = 16
-epochs = 200
+epochs = 50
 
 # Fit model
 cnnhistory = model.fit(X_traincnn, y_train,
