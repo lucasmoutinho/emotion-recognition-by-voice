@@ -9,6 +9,8 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.utils import to_categorical
 import pandas as pd
+import functools
+import keras
 from prepare_data import standarization_unit_variance, normalize
 
 # Get dataset
@@ -84,8 +86,14 @@ model = Sequential()
 model.add(Dense(80, input_dim=13, activation='relu')) #input_dim = number of features. Hidden layer has 50, 20. Output layer has 7 (because of binarize)
 model.add(Dense(7, activation='softmax'))
 
+# top-k category accuracy
+
+top3_acc = functools.partial(keras.metrics.top_k_categorical_accuracy, k=3)
+
+top3_acc.__name__ = 'top3_acc'
+
 # compile the keras model
-model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy', top3_acc])
 
 # Define bath and epochs
 batch_size = 35
