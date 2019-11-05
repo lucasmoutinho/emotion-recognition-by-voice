@@ -18,8 +18,12 @@ from prepare_data import standarization_unit_variance, normalize
 
 # Get dataset
 df = pd.read_csv("voice-emotion-database.csv", sep=",")
+
 # cols = df.columns[df.columns.isin(['gender'])]
-# df = df[(df[cols] == 0).all(1)] # Only desired gender
+# df = df[(df[cols] == 1).all(1)] # Only desired gender
+
+# Create more labels
+df['emotion'] = np.where((df.gender == 1), df.emotion + 6, df.emotion) # distinct labels for man and woman emotions
 
 # See dataset details
 print(df.head())
@@ -90,23 +94,23 @@ print(X_traincnn.shape)
 # define the keras model
 model = Sequential()
 
-model.add(Conv1D(256, 5,padding='same', input_shape=(13,1)))
+model.add(Conv1D(128, 5,padding='same', input_shape=(13,1)))
 model.add(Activation('relu'))
-model.add(Conv1D(128, 5,padding='same'))
+model.add(Conv1D(64, 5,padding='same'))
 model.add(Activation('relu'))
 model.add(Dropout(0.1))
 model.add(MaxPooling1D(pool_size=(8)))
-model.add(Conv1D(128, 5,padding='same',))
+model.add(Conv1D(64, 5,padding='same',))
 model.add(Activation('relu'))
-# model.add(Conv1D(128, 5,padding='same',))
+# model.add(Conv1D(64, 5,padding='same',))
 # model.add(Activation('relu'))
-# model.add(Conv1D(128, 5,padding='same',))
+# model.add(Conv1D(64, 5,padding='same',))
 # model.add(Activation('relu'))
 # model.add(Dropout(0.2))
-model.add(Conv1D(128, 5,padding='same',))
+model.add(Conv1D(64, 5,padding='same',))
 model.add(Activation('relu'))
 model.add(Flatten())
-model.add(Dense(7))
+model.add(Dense(13))
 model.add(Activation('softmax'))
 # opt = keras.optimizers.rmsprop(lr=0.00001, decay=1e-6)
 
