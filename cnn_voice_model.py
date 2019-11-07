@@ -16,6 +16,7 @@ from keras.layers import Conv1D, MaxPooling1D
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split # to split dataset into train and test
 from sklearn import preprocessing
+from sklearn.preprocessing import LabelEncoder
 from prepare_data import standarization_unit_variance, normalize
 
 # Get dataset
@@ -161,3 +162,11 @@ import json
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
         json_file.write(model_json)
+
+# # Predict model
+
+# preds = model.predict(X_testcnn, 
+#                 batch_size=16, 
+#                 verbose=1)
+
+# print(preds)
