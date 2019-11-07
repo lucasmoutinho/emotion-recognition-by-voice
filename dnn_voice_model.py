@@ -113,3 +113,12 @@ print('Test accuracy:', score[1])
 
 # Model Summary
 model.summary()
+
+# Saving the model
+
+# Saving the model.json
+
+import json
+model_json = model.to_json()
+with open("model.json", "w") as json_file:
+        json_file.write(model_json)
