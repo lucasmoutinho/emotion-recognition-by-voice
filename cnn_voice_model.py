@@ -21,7 +21,7 @@ import sys
 sys.path.append("..")
 from scripts.prepare_data import standarization_unit_variance, normalize
 
-DATASET_PATH = "../datasets/dataset_48.csv"
+DATASET_PATH = "datasets/dataset_48.csv"
 
 # Get dataset
 df = pd.read_csv(DATASET_PATH, sep=",")
@@ -141,7 +141,7 @@ epochs = 300
 
 
 lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.000001)
-mcp_save = ModelCheckpoint('model_checkpoints/binary_model.h5', save_best_only=True, monitor='val_loss', mode='min')
+mcp_save = ModelCheckpoint('models/model_checkpoints/binary_model.h5', save_best_only=True, monitor='val_loss', mode='min')
 cnnhistory=model.fit(X_traincnn, y_train, batch_size = batch_size, epochs = epochs, validation_data=(X_testcnn, y_test), callbacks=[mcp_save, lr_reduce])
 
 # Model Summary
