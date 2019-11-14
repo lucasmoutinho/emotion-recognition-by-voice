@@ -21,7 +21,7 @@ import sys
 sys.path.append("..")
 from scripts.prepare_data import standarization_unit_variance, normalize
 
-DATASET_PATH = "datasets/dataset_48.csv"
+DATASET_PATH = "../datasets/dataset_48.csv"
 
 # Get dataset
 df = pd.read_csv(DATASET_PATH, sep=",")
@@ -32,11 +32,11 @@ df = pd.read_csv(DATASET_PATH, sep=",")
 # # Create more labels
 # df['emotion'] = np.where((df.gender == 1), df.emotion + 6, df.emotion) # distinct labels for man and woman emotions
 
-# Agroup labels
-df['emotion'] = np.where((df.emotion == 0) | (df.emotion == 5), 7, df.emotion) # positive emotions
-df['emotion'] = np.where((df.emotion == 3), 8, df.emotion) # neutral emotion
-df['emotion'] = np.where((df.emotion == 1) | (df.emotion == 2) | (df.emotion == 4) | (df.emotion == 6), 9, df.emotion) # negative emotions
-df['emotion'] = df['emotion'] - 7
+# # Agroup labels
+# df['emotion'] = np.where((df.emotion == 0) | (df.emotion == 5), 7, df.emotion) # positive emotions
+# df['emotion'] = np.where((df.emotion == 3), 8, df.emotion) # neutral emotion
+# df['emotion'] = np.where((df.emotion == 1) | (df.emotion == 2) | (df.emotion == 4) | (df.emotion == 6), 9, df.emotion) # negative emotions
+# df['emotion'] = df['emotion'] - 7
 
 # See dataset details
 print(df.head())
@@ -123,7 +123,7 @@ model.add(Activation('sigmoid'))
 model.add(Conv1D(32, 5,padding='same',))
 model.add(Activation('sigmoid'))
 model.add(Flatten())
-model.add(Dense(3))
+model.add(Dense(7))
 model.add(Activation('softmax'))
 # opt = keras.optimizers.rmsprop(lr=0.00001, decay=1e-6)
 
@@ -153,7 +153,7 @@ epochs = 300
 
 
 lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.000001)
-mcp_save = ModelCheckpoint('models/model_checkpoints/group_model.h5', save_best_only=True, monitor='val_loss', mode='min')
+mcp_save = ModelCheckpoint('model_checkpoints/group_model.h5', save_best_only=True, monitor='val_loss', mode='min')
 cnnhistory=model.fit(X_traincnn, y_train, batch_size = batch_size, epochs = epochs, validation_data=(X_testcnn, y_test), callbacks=[mcp_save, lr_reduce])
 
 # Model Summary
