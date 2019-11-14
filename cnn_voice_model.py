@@ -26,6 +26,17 @@ DATASET_PATH = "datasets/dataset_48.csv"
 # Get dataset
 df = pd.read_csv(DATASET_PATH, sep=",")
 
+# cols = df.columns[df.columns.isin(['gender'])]
+# df = df[(df[cols] == 1).all(1)] # Only desired gender
+
+# # Create more labels
+# df['emotion'] = np.where((df.gender == 1), df.emotion + 6, df.emotion) # distinct labels for man and woman emotions
+
+# Agroup labels
+df['emotion'] = np.where((df.emotion == 0) | (df.emotion == 5), 0, df.emotion) # positive emotions
+df['emotion'] = np.where((df.emotion == 3), 1, df.emotion) # neutral emotion
+df['emotion'] = np.where((df.emotion == 1) | (df.emotion == 2) | (df.emotion == 4) | (df.emotion == 6), 2, df.emotion) # negative emotions
+
 # See dataset details
 print(df.head())
 print(df.shape)
@@ -71,14 +82,14 @@ img_rows, img_cols = 3, 4
 # print(y_test[:3])
 # print(y_test.shape)
 
-# Binarize labels
-lb = preprocessing.LabelBinarizer()
-y_train = lb.fit_transform(y_train)
-y_test = lb.fit_transform(y_test)
+# # Binarize labels
+# lb = preprocessing.LabelBinarizer()
+# y_train = lb.fit_transform(y_train)
+# y_test = lb.fit_transform(y_test)
 
-# # Create categorical matrices
-# y_train = to_categorical(y_train)
-# y_test = to_categorical(y_test)
+# Create categorical matrices
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
 
 # See Details
 print("\ny_train:\n")
@@ -111,7 +122,7 @@ model.add(Activation('sigmoid'))
 model.add(Conv1D(32, 5,padding='same',))
 model.add(Activation('sigmoid'))
 model.add(Flatten())
-model.add(Dense(7))
+model.add(Dense(3))
 model.add(Activation('softmax'))
 # opt = keras.optimizers.rmsprop(lr=0.00001, decay=1e-6)
 
@@ -120,7 +131,7 @@ model.add(Activation('softmax'))
 # top3_acc.__name__ = 'top3_acc'
 
 # compile the keras model
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Define bath and epochs
 batch_size = 16
@@ -141,7 +152,7 @@ epochs = 300
 
 
 lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.000001)
-mcp_save = ModelCheckpoint('models/model_checkpoints/binary_model.h5', save_best_only=True, monitor='val_loss', mode='min')
+mcp_save = ModelCheckpoint('models/model_checkpoints/group_model.h5', save_best_only=True, monitor='val_loss', mode='min')
 cnnhistory=model.fit(X_traincnn, y_train, batch_size = batch_size, epochs = epochs, validation_data=(X_testcnn, y_test), callbacks=[mcp_save, lr_reduce])
 
 # Model Summary
