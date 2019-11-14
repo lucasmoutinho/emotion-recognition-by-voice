@@ -115,12 +115,12 @@ model.add(Dense(7))
 model.add(Activation('softmax'))
 # opt = keras.optimizers.rmsprop(lr=0.00001, decay=1e-6)
 
-# top-k category accuracy
-top3_acc = functools.partial(keras.metrics.top_k_categorical_accuracy, k=3)
-top3_acc.__name__ = 'top3_acc'
+# # top-k category accuracy
+# top3_acc = functools.partial(keras.metrics.top_k_categorical_accuracy, k=3)
+# top3_acc.__name__ = 'top3_acc'
 
 # compile the keras model
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', top3_acc])
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # Define bath and epochs
 batch_size = 16
