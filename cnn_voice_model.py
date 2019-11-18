@@ -33,9 +33,10 @@ df = pd.read_csv(DATASET_PATH, sep=",")
 # df['emotion'] = np.where((df.gender == 1), df.emotion + 6, df.emotion) # distinct labels for man and woman emotions
 
 # Agroup labels
-df['emotion'] = np.where((df.emotion == 0) | (df.emotion == 5), 0, df.emotion) # positive emotions
-df['emotion'] = np.where((df.emotion == 3), 1, df.emotion) # neutral emotion
-df['emotion'] = np.where((df.emotion == 1) | (df.emotion == 2) | (df.emotion == 4) | (df.emotion == 6), 2, df.emotion) # negative emotions
+df['emotion'] = np.where((df.emotion == 0) | (df.emotion == 5), 7, df.emotion) # positive emotions
+df['emotion'] = np.where((df.emotion == 3), 8, df.emotion) # neutral emotion
+df['emotion'] = np.where((df.emotion == 1) | (df.emotion == 2) | (df.emotion == 4) | (df.emotion == 6), 9, df.emotion) # negative emotions
+df['emotion'] = df['emotion'] - 7
 
 # See dataset details
 print(df.head())
