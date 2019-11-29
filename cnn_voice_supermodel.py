@@ -43,7 +43,8 @@ print(df.head())
 print(df.shape)
 # import pdb; pdb.set_trace()
 # split into input (X) and output (y) variables
-X = df[df.columns[3:10]] # Only the MFCC features
+X = df[df.columns[3:16]] # Only the MFCC features
+X = df[df.columns[3:7]] # Only the MFCC features
 y = df[df.columns[-1]] # Emotion label
 
 # Normalization of input features in X
@@ -112,12 +113,23 @@ print(X_traincnn.shape)
 # define the keras model
 model = Sequential()
 
-model.add(Conv1D(128, 5,padding='same', input_shape=(7,1)))
+model.add(Conv1D(1024, 5,padding='same', input_shape=(4,1)))
 model.add(Activation('sigmoid'))
-model.add(Conv1D(64, 5,padding='same'))
+model.add(Conv1D(512, 5,padding='same'))
 model.add(Activation('sigmoid'))
 model.add(Dropout(0.1))
-model.add(MaxPooling1D(pool_size=(3)))
+model.add(MaxPooling1D(pool_size=(1)))
+model.add(Conv1D(256, 5,padding='same',))
+model.add(Activation('sigmoid'))
+model.add(Conv1D(128, 5,padding='same',))
+model.add(Activation('sigmoid'))
+model.add(Conv1D(64, 5,padding='same',))
+model.add(Activation('sigmoid'))
+model.add(MaxPooling1D(pool_size=(1)))
+model.add(Conv1D(32, 5,padding='same',))
+model.add(Activation('sigmoid'))
+model.add(Conv1D(32, 5,padding='same',))
+model.add(Activation('sigmoid'))
 model.add(Conv1D(32, 5,padding='same',))
 model.add(Activation('sigmoid'))
 model.add(Conv1D(32, 5,padding='same',))
@@ -153,7 +165,7 @@ epochs = 500
 
 
 lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.0000001)
-mcp_save = ModelCheckpoint('models/model_checkpoints/features_0_1_2_3_4_5_6.h5', save_best_only=True, monitor='val_loss', mode='min')
+mcp_save = ModelCheckpoint('models/model_checkpoints/features_0_1_2_3.h5', save_best_only=True, monitor='val_loss', mode='min')
 cnnhistory=model.fit(X_traincnn, y_train, batch_size = batch_size, epochs = epochs, validation_data=(X_testcnn, y_test), callbacks=[mcp_save, lr_reduce])
 
 # Model Summary
