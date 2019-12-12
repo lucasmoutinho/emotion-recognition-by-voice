@@ -15,6 +15,7 @@ from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split # to split dataset into train and test
 from sklearn import preprocessing
 from keras.callbacks import ReduceLROnPlateau,ModelCheckpoint
+from imblearn.over_sampling import SMOTE
 
 
 import sys
@@ -58,6 +59,12 @@ print(y.shape)
 
 # Split the dataset in train and test
 X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.3)
+
+# Applying SMOTE
+smt = SMOTE()
+X_train, y_train = smt.fit_sample(X_train, y_train)
+
+np.bincount(y_train)
 
 # input image dimensions
 img_rows, img_cols = 3, 4
@@ -127,12 +134,12 @@ model.add(Dense(7))
 model.add(Activation('softmax'))
 # opt = keras.optimizers.rmsprop(lr=0.00001, decay=1e-6)
 
-# # top-k category accuracy
-# top3_acc = functools.partial(keras.metrics.top_k_categorical_accuracy, k=3)
-# top3_acc.__name__ = 'top3_acc'
+# top-k category accuracy
+top3_acc = functools.partial(keras.metrics.top_k_categorical_accuracy, k=3)
+top3_acc.__name__ = 'top3_acc'
 
 # compile the keras model
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy', top3_acc])
 
 # Define bath and epochs
 batch_size = 16
@@ -153,7 +160,7 @@ epochs = 500
 
 
 lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.0000001)
-mcp_save = ModelCheckpoint('models/model_checkpoints/features_0_1_2_3_4_5_6.h5', save_best_only=True, monitor='val_loss', mode='min')
+mcp_save = ModelCheckpoint('models/model_checkpoints/smote.h5', save_best_only=True, monitor='val_loss', mode='min')
 cnnhistory=model.fit(X_traincnn, y_train, batch_size = batch_size, epochs = epochs, validation_data=(X_testcnn, y_test), callbacks=[mcp_save, lr_reduce])
 
 # Model Summary
@@ -168,5 +175,3 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
-
-
