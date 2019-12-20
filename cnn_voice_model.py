@@ -22,7 +22,7 @@ import sys
 sys.path.append("..")
 from scripts.prepare_data import standarization_unit_variance, normalize
 
-DATASET_PATH = "datasets/dataset.csv"
+DATASET_PATH = "datasets/new_row_dataset.csv"
 
 # Get dataset
 df = pd.read_csv(DATASET_PATH, sep=",")
@@ -44,7 +44,7 @@ print(df.head())
 print(df.shape)
 # import pdb; pdb.set_trace()
 # split into input (X) and output (y) variables
-X = df[df.columns[3:10]] # Only the MFCC features
+X = df[df.columns[:10]] # Only the MFCC features
 y = df[df.columns[-1]] # Emotion label
 
 # Normalization of input features in X
@@ -119,7 +119,7 @@ print(X_traincnn.shape)
 # define the keras model
 model = Sequential()
 
-model.add(Conv1D(128, 5,padding='same', input_shape=(7,1)))
+model.add(Conv1D(128, 5,padding='same', input_shape=(10,1)))
 model.add(Activation('sigmoid'))
 model.add(Conv1D(64, 5,padding='same'))
 model.add(Activation('sigmoid'))
