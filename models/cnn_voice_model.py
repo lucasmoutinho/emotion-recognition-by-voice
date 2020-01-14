@@ -41,7 +41,8 @@ df = pd.read_csv(DATASET_PATH, sep=",")
 # See dataset details
 print(df.head())
 print(df.shape)
-# import pdb; pdb.set_trace()
+# import pdb; pdb.set_tr
+# ace()
 # split into input (X) and output (y) variables
 X = df[df.columns[3:51]] # Only the MFCC features
 y = df[df.columns[-1]] # Emotion label
@@ -151,7 +152,7 @@ epochs = 300
 #print('Test loss:', score[0])
 #print('Test accuracy:', score[1])
 
-
+import pdb; pdb.set_trace()
 lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.000001)
 mcp_save = ModelCheckpoint('model_checkpoints/group_model.h5', save_best_only=True, monitor='val_loss', mode='min')
 cnnhistory=model.fit(X_traincnn, y_train, batch_size = batch_size, epochs = epochs, validation_data=(X_testcnn, y_test), callbacks=[mcp_save, lr_reduce])

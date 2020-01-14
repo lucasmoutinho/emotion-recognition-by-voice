@@ -1,4 +1,6 @@
 from sklearn import preprocessing
+from sklearn.model_selection import train_test_split, StratifiedKFold
+from keras.callbacks import ReduceLROnPlateau,ModelCheckpoint
 import pandas as pd
 
 # This function returns a normalized version of the input dataframe 
@@ -30,3 +32,24 @@ def standarization_unit_variance(X_train, X_test):
     X_test.update(testing_norm_col)
 
     return X_train, X_test
+
+# Método K-fold
+def load_data_kfold(k, df):
+    X = df[df.columns[3:51]] # Only the MFCC features
+    y = df[df.columns[-1]] # Emotion label
+
+    # Normalization of input features in X
+    X = normalize(X)
+
+    # Split the dataset in train and test
+    # X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.3)
+    X_train = X
+    y_train = y
+    folds = list(StratifiedKFold(n_splits=k, shuffle=True, random_state=1).split(X_train, y_train))
+    return folds, X_train, y_train
+
+## Callback Functions ##
+def get_callbacks(name_weights, patience_lr):
+    mcp_save = ModelCheckpoint(name_weights, save_best_only=True, monitor='val_loss', mode='min')
+    reduce_lr_loss = ReduceLROnPlateau(monitor='loss', factor=0.1, patience=patience_lr, verbose=1, epsilon=1e-4, mode='min')
+    return [mcp_save, reduce_lr_loss]
