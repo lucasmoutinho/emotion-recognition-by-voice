@@ -42,7 +42,7 @@ class TimeSeriesDatasetLoader:
         
         for filepath in filepaths:
             inst = pd.read_csv(filepath, delimiter=';')
-            emotion = translate_emotion(filepath)
+            emotion = self.translate_emotion(filepath)
             X_dataset.append(inst.values)
             Y_dataset.append(int(emotion))
         
