@@ -6,3 +6,5 @@ keras
 tensorflow
 jupyter
 numpy
+imblearn
+imbalanced-learn

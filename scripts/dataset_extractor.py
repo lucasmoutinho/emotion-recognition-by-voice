@@ -8,9 +8,9 @@ from sklearn.model_selection import train_test_split # to split dataset into tra
 from sklearn.preprocessing import Normalizer
 from numpy import loadtxt # Linear Algebra
 
-DATABASE_NAME = "db2"
+DATABASE_NAME = "db1"
 OUTPUT_PATH = "../../Output/{}/".format(DATABASE_NAME)
-AUDIO_OUTPUT_FOLDER = "MFCC"
+AUDIO_OUTPUT_FOLDER = "chroma"
 
 def translate_emotion(token, database=None):
     if database == "db2":
@@ -45,12 +45,12 @@ def translate_sentence(token):
 
 def build_dataset():
     dataset = []
-
+    columns = None
     for folder in os.listdir("{}/{}".format(OUTPUT_PATH, AUDIO_OUTPUT_FOLDER)):                                                                             
         for filename in os.listdir("{}/{}/{}".format(OUTPUT_PATH, AUDIO_OUTPUT_FOLDER, folder)):
             filepath = "{}/{}/{}/{}".format(OUTPUT_PATH, AUDIO_OUTPUT_FOLDER, folder, filename)
 
-            if DATABASE_NAME == "db_tg":
+            if DATABASE_NAME == "db1":
                 filename_tokens = re.split('-|\.',filename)
                 emotion = translate_emotion(filename_tokens[0])
                 gender, person_id = translate_person(filename_tokens[1])
@@ -59,16 +59,19 @@ def build_dataset():
                 emotion = translate_emotion(re.split('-|\.', filename)[2], "db2")
 
             csv_out = open(filepath)
-            csv_out.readline()
-            content = csv_out.readline().split(';')
+                    
+            document_content = csv_out.read()
+            
+            content = document_content[-2].split(',')
             csv_out.close()
             data_instance = content + [emotion]
             dataset.append(data_instance)
-
-    return dataset
+    
+    ncolumns = [column for column in filter(lambda x: x != '', columns)]
+    return dataset, ncolumns
             
 
-dataset = build_dataset()
-df = pd.DataFrame(dataset) 
-df.to_csv('db2_dataset.csv')
+dataset, columns = build_dataset()
+df = pd.DataFrame(dataset, columns=columns) 
+df.to_csv('emobase_dataset.csv')
 

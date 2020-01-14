@@ -15,13 +15,14 @@ from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split # to split dataset into train and test
 from sklearn import preprocessing
 from keras.callbacks import ReduceLROnPlateau,ModelCheckpoint
+from imblearn.over_sampling import SMOTE
 
 
 import sys
 sys.path.append("..")
 from scripts.prepare_data import standarization_unit_variance, normalize
 
-DATASET_PATH = "datasets/dataset_48.csv"
+DATASET_PATH = "datasets/new_row_dataset.csv"
 
 # Get dataset
 df = pd.read_csv(DATASET_PATH, sep=",")
@@ -32,18 +33,18 @@ df = pd.read_csv(DATASET_PATH, sep=",")
 # # Create more labels
 # df['emotion'] = np.where((df.gender == 1), df.emotion + 6, df.emotion) # distinct labels for man and woman emotions
 
-# Agroup labels
-df['emotion'] = np.where((df.emotion == 0) | (df.emotion == 5), 7, df.emotion) # positive emotions
-df['emotion'] = np.where((df.emotion == 3), 8, df.emotion) # neutral emotion
-df['emotion'] = np.where((df.emotion == 1) | (df.emotion == 2) | (df.emotion == 4) | (df.emotion == 6), 9, df.emotion) # negative emotions
-df['emotion'] = df['emotion'] - 7
+# # Agroup labels
+# df['emotion'] = np.where((df.emotion == 0) | (df.emotion == 5), 7, df.emotion) # positive emotions
+# df['emotion'] = np.where((df.emotion == 3), 8, df.emotion) # neutral emotion
+# df['emotion'] = np.where((df.emotion == 1) | (df.emotion == 2) | (df.emotion == 4) | (df.emotion == 6), 9, df.emotion) # negative emotions
+# df['emotion'] = df['emotion'] - 7
 
 # See dataset details
 print(df.head())
 print(df.shape)
 # import pdb; pdb.set_trace()
 # split into input (X) and output (y) variables
-X = df[df.columns[3:51]] # Only the MFCC features
+X = df[df.columns[:10]] # Only the MFCC features
 y = df[df.columns[-1]] # Emotion label
 
 # Normalization of input features in X
@@ -58,6 +59,12 @@ print(y.shape)
 
 # Split the dataset in train and test
 X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.3)
+
+# Applying SMOTE
+smt = SMOTE()
+X_train, y_train = smt.fit_sample(X_train, y_train)
+
+np.bincount(y_train)
 
 # input image dimensions
 img_rows, img_cols = 3, 4
@@ -112,31 +119,31 @@ print(X_traincnn.shape)
 # define the keras model
 model = Sequential()
 
-model.add(Conv1D(128, 5,padding='same', input_shape=(48,1)))
+model.add(Conv1D(128, 5,padding='same', input_shape=(10,1)))
 model.add(Activation('sigmoid'))
 model.add(Conv1D(64, 5,padding='same'))
 model.add(Activation('sigmoid'))
 model.add(Dropout(0.1))
-model.add(MaxPooling1D(pool_size=(8)))
+model.add(MaxPooling1D(pool_size=(3)))
 model.add(Conv1D(32, 5,padding='same',))
 model.add(Activation('sigmoid'))
 model.add(Conv1D(32, 5,padding='same',))
 model.add(Activation('sigmoid'))
 model.add(Flatten())
-model.add(Dense(3))
+model.add(Dense(7))
 model.add(Activation('softmax'))
 # opt = keras.optimizers.rmsprop(lr=0.00001, decay=1e-6)
 
-# # top-k category accuracy
-# top3_acc = functools.partial(keras.metrics.top_k_categorical_accuracy, k=3)
-# top3_acc.__name__ = 'top3_acc'
+# top-k category accuracy
+top3_acc = functools.partial(keras.metrics.top_k_categorical_accuracy, k=3)
+top3_acc.__name__ = 'top3_acc'
 
 # compile the keras model
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy', top3_acc])
 
 # Define bath and epochs
 batch_size = 16
-epochs = 300
+epochs = 500
 
 # Fit model
 #cnnhistory = model.fit(X_traincnn, y_train,
@@ -152,8 +159,8 @@ epochs = 300
 #print('Test accuracy:', score[1])
 
 
-lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.000001)
-mcp_save = ModelCheckpoint('models/model_checkpoints/group_model.h5', save_best_only=True, monitor='val_loss', mode='min')
+lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.0000001)
+mcp_save = ModelCheckpoint('models/model_checkpoints/smote.h5', save_best_only=True, monitor='val_loss', mode='min')
 cnnhistory=model.fit(X_traincnn, y_train, batch_size = batch_size, epochs = epochs, validation_data=(X_testcnn, y_test), callbacks=[mcp_save, lr_reduce])
 
 # Model Summary
@@ -168,5 +175,3 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.show()
-
-
