@@ -25,11 +25,11 @@ class TimeSeriesDatasetLoader:
 
         elif type_ == 'emotion_type':
             if token in ['ale', 'sur']:
-                return 1
-            if token == 'neu':
                 return 0
+            if token == 'neu':
+                return 1
             if token in ['des', 'rai', 'tri', 'med']:
-                return -1
+                return 2
 
         elif type_ == 'russel':
             if token == 'neu':

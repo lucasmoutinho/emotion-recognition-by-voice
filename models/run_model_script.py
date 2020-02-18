@@ -87,7 +87,7 @@ vars = [
 
 model_variations = [
     {'type': 'default', 'activation_layer_size': 7},
-    {'type': 'emotion_type', 'activation_layer_size': 2},
+    {'type': 'emotion_type', 'activation_layer_size': 3},
     {'type': 'russel', 'activation_layer_size': 5}
 ]
 
