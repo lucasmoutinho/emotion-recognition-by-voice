@@ -45,7 +45,6 @@ class TimeSeriesDatasetLoader:
 
     def get_all_filepaths(self):
         result_filepaths = []
-
         for inst in os.listdir(self.dataset_path):
             recursive_file_instances = []
             if os.path.isdir("{}/{}".format(self.dataset_path, inst)):

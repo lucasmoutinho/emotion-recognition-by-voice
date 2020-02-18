@@ -11,6 +11,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 from time_series_dataset_loader import TimeSeriesDatasetLoader
+from imblearn.over_sampling import SMOTE
 
 
 # DATASET_PATH = '../src/Features/Original/MFCC_2/'
@@ -40,6 +41,19 @@ class TimeSeriesModel:
 
             X = pad_sequences(X, maxlen=max_len, padding='post')
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+            # Reshaping to apply smote
+            shape_0 = X_train.shape[0]
+            shape_1 = X_train.shape[1]
+            shape_2 = X_train.shape[2]
+            X_train = X_train.reshape(shape_0, shape_1 * shape_2)
+
+            # Apply SMOTE
+            smt = SMOTE()
+            X_train, y_train = smt.fit_sample(X_train, y_train)
+
+            # Reshaping back to original shape dimensions 1 and 2
+            X_train = X_train.reshape(X_train.shape[0], shape_1, shape_2)
 
             y_train = to_categorical(y_train)
             y_test = to_categorical(y_test)
