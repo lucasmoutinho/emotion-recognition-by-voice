@@ -29,7 +29,7 @@ class TimeSeriesDatasetLoader:
             if token == 'neu':
                 return 0
             if token in ['des', 'rai', 'tri', 'med']:
-                return -1
+                return 2
 
         elif type_ == 'russel':
             if token == 'neu':
