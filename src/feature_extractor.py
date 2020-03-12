@@ -1,7 +1,9 @@
 import os
-AUDIO_PATH = "../../SplittedAudios/1secsplit/"
-OUTPUT_PATH = "Features/1SecSplitFeatures/"
-OPENSMILE_CONFIG_FILEPATH = "./MFCC_CSV_OUT.conf"
+# AUDIO_PATH = "../../SplittedAudios/1secsplit/"
+# OUTPUT_PATH = "Features/1SecSplitFeatures/"
+AUDIO_PATH = '../../Audios/'
+OUTPUT_PATH = 'Features/Original/MFCC_10/'
+OPENSMILE_CONFIG_FILEPATH = "./MFCC_CSV_OUT_10.conf"
 
 
 class FeatureExtractor:
@@ -15,8 +17,7 @@ class FeatureExtractor:
 
     def generate_extract_command(self, filepath):
         filename = filepath.split('/')[-1]
-        return "SMILExtract -C {0} -I {1} -O {2}.csv".format(self.opensmile_config_path, filepath,
-                                                             self.output_folder_path + filename)
+        return "SMILExtract -C {0} -I {1} -O {2}.csv".format(self.opensmile_config_path, filepath, self.output_folder_path + filename)
 
     def get_all_filepaths(self, path):
         result_filepaths = []
@@ -35,9 +36,14 @@ class FeatureExtractor:
         filepaths = self.get_all_filepaths(self.audio_folder_path)
         for filepath in filepaths:
             extract_command = self.generate_extract_command(filepath)
+            print(extract_command)
             os.system(extract_command)
 
     @staticmethod
     def __create_if_does_not_exist(audio_folder_output):
         if not os.path.exists(audio_folder_output):
             os.makedirs(audio_folder_output)
+
+
+extracor = FeatureExtractor(AUDIO_PATH, OUTPUT_PATH, OPENSMILE_CONFIG_FILEPATH)
+extracor.extract_features()

@@ -1,0 +1,3 @@
+frameIndex;frameTime;pcm_fftMag_mfcc[0];pcm_fftMag_mfcc[1];pcm_fftMag_mfcc[2];pcm_fftMag_mfcc[3];pcm_fftMag_mfcc[4];pcm_fftMag_mfcc[5];pcm_fftMag_mfcc[6];pcm_fftMag_mfcc[7];pcm_fftMag_mfcc[8];pcm_fftMag_mfcc[9];pcm_fftMag_mfcc[10];pcm_fftMag_mfcc[11];pcm_fftMag_mfcc[12];pcm_fftMag_mfcc[13]
+0;0.000000;-5.691051e-02;-2.890408e+00;-7.796526e-02;-8.985920e-01;2.023530e+00;-5.199182e-02;1.830881e+00;8.334997e-01;-8.771648e-01;-7.542155e-01;-8.212776e-01;-4.143006e-01;-3.934903e-01;7.479630e-01
+1;0.100000;5.691051e-02;2.890408e+00;7.796526e-02;8.985918e-01;-2.023531e+00;5.199182e-02;-1.830881e+00;-8.334996e-01;8.771648e-01;7.542155e-01;8.212776e-01;4.143005e-01;3.934903e-01;-7.479630e-01
