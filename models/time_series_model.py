@@ -10,7 +10,7 @@ from keras.models import Sequential
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
-from time_series_dataset_loader import TimeSeriesDatasetLoader
+from models.time_series_dataset_loader import TimeSeriesDatasetLoader
 from imblearn.over_sampling import SMOTE
 
 
