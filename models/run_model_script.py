@@ -1,6 +1,6 @@
 import csv
 from datetime import datetime
-from time_series_model import TimeSeriesModel
+from models.time_series_model import TimeSeriesModel
 
 vars = [
     {'dataset': 'Original',
