@@ -1,78 +1,113 @@
+import functools
 
+import keras
 import numpy as np
+from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint
+from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Dense, Dropout
+from keras.layers import GlobalAveragePooling2D
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Convolution2D, Conv2D, MaxPooling2D, GlobalAveragePooling2D
-from keras.optimizers import Adam
-from keras.utils import np_utils
-from sklearn import metrics 
-
-num_rows = 40
-num_columns = 174
-num_channels = 1
-
-x_train = x_train.reshape(x_train.shape[0], num_rows, num_columns, num_channels)
-x_test = x_test.reshape(x_test.shape[0], num_rows, num_columns, num_channels)
-
-num_labels = yy.shape[1]
-filter_size = 2
-
-# Construct model 
-model = Sequential()
-model.add(Conv2D(filters=16, kernel_size=2, input_shape=(num_rows, num_columns, num_channels), activation='relu'))
-model.add(MaxPooling2D(pool_size=2))
-model.add(Dropout(0.2))
-
-model.add(Conv2D(filters=32, kernel_size=2, activation='relu'))
-model.add(MaxPooling2D(pool_size=2))
-model.add(Dropout(0.2))
-
-model.add(Conv2D(filters=64, kernel_size=2, activation='relu'))
-model.add(MaxPooling2D(pool_size=2))
-model.add(Dropout(0.2))
-
-model.add(Conv2D(filters=128, kernel_size=2, activation='relu'))
-model.add(MaxPooling2D(pool_size=2))
-model.add(Dropout(0.2))
-model.add(GlobalAveragePooling2D())
-
-model.add(Dense(num_labels, activation='softmax'))
+from keras.preprocessing.sequence import pad_sequences
+from keras.utils import to_categorical
+from sklearn.model_selection import train_test_split
+from time_series_dataset_loader import TimeSeriesDatasetLoader
+from imblearn.over_sampling import SMOTE
 
 
-# Compile the model
-model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='adam')
+# DATASET_PATH = '../src/Features/Original/MFCC_2/'
+#         checkpoint_file = '../models/model_checkpoints/original_window_2.h5'
 
-# Display model architecture summary 
-model.summary()
+class TimeSeriesModel:
 
-# Calculate pre-training accuracy 
-score = model.evaluate(x_test, y_test, verbose=1)
-accuracy = 100*score[1]
+    def __init__(self, dataset_path, checkpoint_filename, type_='default', activation_layer_size=7):
+        self.dataset_path = dataset_path
+        self.checkpoint_filename = checkpoint_filename
+        self.type_ = type_
+        self.activation_layer_size = activation_layer_size
 
-print("Pre-training accuracy: %.4f%%" % accuracy) 
+    def run(self):
+        try:
+            dataset_loader = TimeSeriesDatasetLoader(self.dataset_path)
 
+            X, y = dataset_loader.get_dataset(type_=self.type_)
 
-###
-from keras.callbacks import ModelCheckpoint 
-from datetime import datetime 
+            X = np.asarray(X)
+            y = np.asarray(y)
 
-num_epochs = 72
-num_batch_size = 256
+            max_len = len(X[0])
+            for row in X:
+                if len(row) > max_len:
+                    max_len = len(row)
 
-checkpointer = ModelCheckpoint(filepath='saved_models/weights.best.basic_cnn.hdf5', 
-                               verbose=1, save_best_only=True)
-start = datetime.now()
+            X = pad_sequences(X, maxlen=max_len, padding='post')
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
-model.fit(x_train, y_train, batch_size=num_batch_size, epochs=num_epochs, validation_data=(x_test, y_test), callbacks=[checkpointer], verbose=1)
+            # Reshaping to apply smote
+            shape_0 = X_train.shape[0]
+            shape_1 = X_train.shape[1]
+            shape_2 = X_train.shape[2]
+            X_train = X_train.reshape(shape_0, shape_1 * shape_2)
 
+            # Apply SMOTE
+            smt = SMOTE()
+            X_train, y_train = smt.fit_sample(X_train, y_train)
 
-duration = datetime.now() - start
-print("Training completed in time: ", duration)
+            # Reshaping back to original shape dimensions 1 and 2
+            X_train = X_train.reshape(X_train.shape[0], shape_1, shape_2)
 
-###
+            y_train = to_categorical(y_train)
+            y_test = to_categorical(y_test)
 
-score = model.evaluate(x_train, y_train, verbose=0)
-print("Training Accuracy: ", score[1])
+            num_rows = X[0].shape[0]
+            num_columns = X[0].shape[1]
+            num_channels = 1
 
-score = model.evaluate(x_test, y_test, verbose=0)
-print("Testing Accuracy: ", score[1])
+            X_train = X_train.reshape(X_train.shape[0], num_rows, num_columns, num_channels)
+            X_test = X_test.reshape(X_test.shape[0], num_rows, num_columns, num_channels)
+
+            model = Sequential()
+            model.add(
+                Conv2D(filters=32, kernel_size=2, input_shape=(num_rows, num_columns, num_channels), activation='relu'))
+            model.add(MaxPooling2D(pool_size=2))
+            model.add(Dropout(0.2))
+
+            model.add(Conv2D(filters=64, kernel_size=2, activation='relu'))
+            model.add(MaxPooling2D(pool_size=2))
+            model.add(Dropout(0.2))
+
+            model.add(Conv2D(filters=128, kernel_size=2, activation='relu'))
+            model.add(MaxPooling2D(pool_size=2))
+            model.add(Dropout(0.2))
+            model.add(GlobalAveragePooling2D())
+
+            model.add(Dense(self.activation_layer_size, activation='softmax'))
+
+            top3_acc = functools.partial(keras.metrics.top_k_categorical_accuracy, k=3)
+            top3_acc.__name__ = 'top3_acc'
+
+            # compile the keras model
+            model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy', top3_acc])
+
+            batch_size = 256
+            epochs = 400
+
+            lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.0000001)
+            mcp_save = ModelCheckpoint(self.checkpoint_filename, save_best_only=True, monitor='val_loss', mode='min')
+            cnnhistory = model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs,
+                                   validation_data=(X_test, y_test),
+                                   callbacks=[mcp_save, lr_reduce])
+
+            accuracy_list = cnnhistory.history['accuracy']
+            highest_index = cnnhistory.history['accuracy'].index(np.sort(cnnhistory.history['accuracy'])[-1])
+            scores_ = {'val_accuracy': cnnhistory.history['val_accuracy'][highest_index],
+                       'val_top3_acc': cnnhistory.history['val_top3_acc'][highest_index],
+                       'accuracy': cnnhistory.history['accuracy'][highest_index],
+                       'top3_acc': cnnhistory.history['top3_acc'][highest_index]}
+
+            return scores_
+
+        except:
+            return {'val_accuracy': 'error',
+                    'val_top3_acc': 'error',
+                    'accuracy': 'error',
+                    'top3_acc': 'error'}

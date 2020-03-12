@@ -1,0 +1,17 @@
+dataset,model_variation,features,val_accuracy,val_top3_acc,accuracy,top3_acc
+Original,emotion_type,MFCC,0.5657142996788025,1.0,0.8077193,1.0
+Original,emotion_type,MFCC 2x,0.5857142806053162,1.0,0.8639887,1.0
+Original,emotion_type,MFCC 5x,0.5257142782211304,1.0,0.9199418,1.0
+Original,emotion_type,MFCC 10x,0.44412606954574585,1.0,0.9287212,1.0
+1secsplit,emotion_type,MFCC,0.5490584969520569,1.0,0.87626076,1.0
+1secsplit,emotion_type,MFCC 2x,0.5282458066940308,1.0,0.9006672,1.0
+1secsplit,emotion_type,MFCC 5x,0.4539147615432739,1.0,0.8773198,1.0
+1secsplit,emotion_type,MFCC 10x,error,error,error,error
+2secsplit,emotion_type,MFCC,error,error,error,error
+2secsplit,emotion_type,MFCC 2x,0.4923076927661896,1.0,0.8130397,1.0
+2secsplit,emotion_type,MFCC 5x,0.47350427508354187,1.0,0.8352738,1.0
+2secsplit,emotion_type,MFCC 10x,0.41709402203559875,1.0,0.83864117,1.0
+3secsplit,emotion_type,MFCC,error,error,error,error
+3secsplit,emotion_type,MFCC 2x,0.5531914830207825,1.0,0.8446834,1.0
+3secsplit,emotion_type,MFCC 5x,0.5200945734977722,1.0,0.8819804,1.0
+3secsplit,emotion_type,MFCC 10x,0.46335697174072266,1.0,0.8869153,1.0
