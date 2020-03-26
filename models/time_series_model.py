@@ -1,6 +1,3 @@
-import functools
-
-import keras
 import numpy as np
 from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint
 from keras.layers import Conv2D, MaxPooling2D
@@ -10,7 +7,6 @@ from keras.models import Sequential
 from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
-from models.time_series_dataset_loader import TimeSeriesDatasetLoader
 from imblearn.over_sampling import SMOTE
 
 from hyperopt import Trials, STATUS_OK, tpe
@@ -20,6 +16,8 @@ from hyperas.distributions import choice, uniform
 
 # DATASET_PATH = '../src/Features/Original/MFCC_2/'
 #         checkpoint_file = '../models/model_checkpoints/original_window_2.h5'
+from models.time_series_dataset_loader import TimeSeriesDatasetLoader
+
 
 class TimeSeriesModel:
 
@@ -28,6 +26,7 @@ class TimeSeriesModel:
         self.checkpoint_filename = checkpoint_filename
         self.type_ = type_
         self.activation_layer_size = activation_layer_size
+        self.log_file_name = "time_series_model.log"
 
     def data(self):
         # Importing X and y
@@ -64,19 +63,26 @@ class TimeSeriesModel:
         y_test = to_categorical(y_test)
         
         # Reshaping X to fit model
-        num_rows = X[0].shape[0]
-        num_columns = X[0].shape[1]
-        num_channels = 1
+        num_channels, num_columns, num_rows = self.get_input_shape(X)
 
         X_train = X_train.reshape(X_train.shape[0], num_rows, num_columns, num_channels)
         X_test = X_test.reshape(X_test.shape[0], num_rows, num_columns, num_channels)
         
         return X_train, y_train, X_test, y_test
 
+    def get_input_shape(self, X):
+        num_rows = X[0].shape[0]
+        num_columns = X[0].shape[1]
+        num_channels = 1
+        return num_channels, num_columns, num_rows
+
     def create_model(self, X_train, y_train, X_test, y_test):
         # Construct model
         model = Sequential()
-        model.add(Conv2D(filters={{choice([64, 128])}}, kernel_size=2, input_shape=(num_rows, num_columns, num_channels), activation='relu'))
+        model.add(Conv2D(filters={{choice([64, 128])}},
+                         kernel_size=2,
+                         input_shape=(self.get_input_shape(X_train)),
+                         activation='relu'))
         model.add(MaxPooling2D(pool_size=2))
         model.add(Dropout({{uniform(0, 1)}}))
 
@@ -95,43 +101,44 @@ class TimeSeriesModel:
         model.compile(loss='categorical_crossentropy', optimizer={{choice(['rmsprop', 'adam', 'sgd'])}}, metrics=['accuracy'])
         
         # Define bath and epochs
-        batch_size ={{choice([64,128])}}
-        epochs = 10
+        batch_size = {{choice([64,128])}}
+        epochs = 3
         
         # Callbacks and fitting model
         lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9, patience=20, min_lr=0.0000001)
         mcp_save = ModelCheckpoint('../model_checkpoints/hyperopt_test.h5', save_best_only=True, monitor='val_loss', mode='min')
-        result=model.fit(X_train, y_train, batch_size = batch_size, epochs = epochs, validation_data=(X_test, y_test), callbacks=[mcp_save, lr_reduce], verbose=2)
+        result = model.fit(X_train, y_train, batch_size = batch_size, epochs = epochs, validation_data=(X_test, y_test), callbacks=[mcp_save, lr_reduce], verbose=2)
         
         # Get the highest validation accuracy of the training epochs
         validation_acc = np.amax(result.history['val_accuracy']) 
         print('Best validation acc of epoch:', validation_acc)
 
+        accuracy_list = result.history['accuracy']
+        highest_index = result.history['accuracy'].index(np.sort(result.history['accuracy'])[-1])
+        scores_ = {'val_accuracy': validation_acc,
+                    'accuracy': result.history['accuracy'][highest_index]}
 
-        # accuracy_list = result.history['accuracy']
-        # highest_index = result.history['accuracy'].index(np.sort(result.history['accuracy'])[-1])
-        # scores_ = {'val_accuracy': validation_acc,
-        #             'accuracy': result.history['accuracy'][highest_index],
-        
+        self.write_log(scores_)
         return {'loss': -validation_acc, 'status': STATUS_OK, 'model': model}
+
+    def write_log(self, scores_):
+        f = open(self.log_file_name, "a+")
+        f.write(scores_)
+        f.close()
 
     def run(self):
         try:
-            best_run, best_model = optim.minimize(model=create_model,
-                                                    data=data,
+            best_run, best_model = optim.minimize(model=self.create_model,
+                                                    data=self.data,
                                                     algo=tpe.suggest,
                                                     max_evals=3,
-                                                    trials=Trials(),
-                                                    notebook_name='HyperoptTry')
+                                                    trials=Trials())
 
             print("Best performing model chosen hyper-parameters:")
             print(best_run)
             print(best_model)
 
-            return scores_
+            return best_run, best_model
 
         except:
-            return {'val_accuracy': 'error',
-                    'val_top3_acc': 'error',
-                    'accuracy': 'error',
-                    'top3_acc': 'error'}
+            return "Error", "Error"
