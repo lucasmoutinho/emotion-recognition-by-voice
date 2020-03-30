@@ -2,7 +2,6 @@ import os
 
 import pandas as pd
 
-
 class TimeSeriesDatasetLoader:
 
     def __init__(self, dataset_path):
@@ -14,10 +13,10 @@ class TimeSeriesDatasetLoader:
 
         if type_ == 'default':
             return {
-                'ale': 0,
+                'neu': 0,
                 'des': 1,
                 'med': 2,
-                'neu': 3,
+                'ale': 3,
                 'rai': 4,
                 'sur': 5,
                 'tri': 6
@@ -57,7 +56,7 @@ class TimeSeriesDatasetLoader:
 
         return result_filepaths + recursive_file_instances
 
-    def get_dataset(self, type_='default'):
+    def get_dataset(self, type_='default', ignore_neutral=False):
         X_dataset = []
         Y_dataset = []
         file_paths = self.get_all_filepaths()
@@ -66,9 +65,9 @@ class TimeSeriesDatasetLoader:
             try:
                 inst = pd.read_csv(file_path, delimiter=';')
                 emotion = self.translate_emotion(file_path, type_)
-
-                X_dataset.append(inst.values)
-                Y_dataset.append(int(emotion))
+                if not(ignore_neutral and emotion == 0):
+                    X_dataset.append(inst.values)
+                    Y_dataset.append(int(emotion))
             except:
                 pass
 
