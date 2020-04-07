@@ -93,34 +93,34 @@ def create_model(X_train, y_train, X_test, y_test):
     ####
     # Construct model
     model = Sequential()
-    model.add(Conv2D(filters={{choice([64, 128])}},
+    model.add(Conv2D(filters={{choice([128, 256])}},
                      kernel_size=2,
                      input_shape=(num_rows, num_columns, num_channels),
                      activation='relu'))
     model.add(MaxPooling2D(pool_size=2))
-    model.add(Dropout({{uniform(0, 1)}}))
+    model.add(Dropout(0.25))
 
     model.add(Conv2D(filters={{choice([64, 128])}}, kernel_size=2,
                      activation='relu'))
     model.add(MaxPooling2D(pool_size=2))
-    model.add(Dropout({{uniform(0, 1)}}))
+    model.add(Dropout(0.25))
 
     model.add(Conv2D(filters={{choice([32, 64])}}, kernel_size=2,
                      activation='relu'))
     model.add(MaxPooling2D(pool_size=1))
-    model.add(Dropout({{uniform(0, 1)}}))
+    model.add(Dropout(0.25))
     model.add(GlobalAveragePooling2D())
 
     model.add(Dense(7, activation='softmax'))
 
     # Compile the keras model
     model.compile(loss='categorical_crossentropy',
-                  optimizer={{choice(['rmsprop', 'adam', 'sgd'])}},
+                  optimizer='adam',
                   metrics=['accuracy'])
 
     # Define bath and epochs
-    batch_size = {{choice([64, 128])}}
-    epochs = 200
+    batch_size = 128
+    epochs = 1
 
     # Callbacks and fitting model
     lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9,

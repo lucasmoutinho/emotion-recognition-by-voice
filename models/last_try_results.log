@@ -1,0 +1,1 @@
+{'run_name': 'run 2020-04-07-00-46', 'Dropout': 0.25, 'Dropout 1': 0.25, 'Dropout 2': 0.25, 'batch_size': 128, 'filters': 128, 'filters_1': 128, 'filters_2': 32, 'optimizer': 'Adam', 'val_accuracy': 0.3988603949546814, 'average': 0.34472934472934474, 'grouped_average': 0.603988603988604}
