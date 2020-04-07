@@ -50,18 +50,18 @@ def data():
             max_len = len(row)
     X = pad_sequences(X, maxlen=max_len, padding='post')
 
-    # Reshaping to apply smote
-    shape_0 = X.shape[0]
-    shape_1 = X.shape[1]
-    shape_2 = X.shape[2]
-    X = X.reshape(shape_0, shape_1 * shape_2)
+    # # Reshaping to apply smote
+    # shape_0 = X.shape[0]
+    # shape_1 = X.shape[1]
+    # shape_2 = X.shape[2]
+    # X = X.reshape(shape_0, shape_1 * shape_2)
 
-    # Apply SMOTE
-    smt = SMOTE()
-    X, y = smt.fit_sample(X, y)
+    # # Apply SMOTE
+    # smt = SMOTE()
+    # X, y = smt.fit_sample(X, y)
 
-    # Reshaping back to original shape dimensions 1 and 2
-    X = X.reshape(X.shape[0], shape_1, shape_2)
+    # # Reshaping back to original shape dimensions 1 and 2
+    # X = X.reshape(X.shape[0], shape_1, shape_2)
     
     # Split the dataset in train and test
     X_train, X_test, y_train, y_test = train_test_split(X, y,
@@ -93,34 +93,36 @@ def create_model(X_train, y_train, X_test, y_test):
     ####
     # Construct model
     model = Sequential()
-    model.add(Conv2D(filters={{choice([64, 128])}},
-                     kernel_size=2,
-                     input_shape=(num_rows, num_columns, num_channels),
-                     activation='relu'))
-    model.add(MaxPooling2D(pool_size=2))
-    model.add(Dropout({{uniform(0, 1)}}))
+    model.add(Conv2D(filters=128,
+                    kernel_size=2,
+                    input_shape=(num_rows, num_columns, num_channels),
+                    activation='tanh'))
 
-    model.add(Conv2D(filters={{choice([64, 128])}}, kernel_size=2,
-                     activation='relu'))
     model.add(MaxPooling2D(pool_size=2))
-    model.add(Dropout({{uniform(0, 1)}}))
+    model.add(Dropout(0.2))
 
-    model.add(Conv2D(filters={{choice([32, 64])}}, kernel_size=2,
-                     activation='relu'))
+    model.add(Conv2D(filters=128, kernel_size=2,
+                    activation='tanh'))
+    model.add(MaxPooling2D(pool_size=2))
+    model.add(Dropout(0.2))
+
+    model.add(Conv2D(filters=64, kernel_size=2,
+                    activation='tanh'))
     model.add(MaxPooling2D(pool_size=1))
-    model.add(Dropout({{uniform(0, 1)}}))
+    model.add(Dropout(0.2))
     model.add(GlobalAveragePooling2D())
 
     model.add(Dense(7, activation='softmax'))
-
+    #test with sigmoid, tanh,
     # Compile the keras model
     model.compile(loss='categorical_crossentropy',
-                  optimizer={{choice(['rmsprop', 'adam', 'sgd'])}},
-                  metrics=['accuracy'])
+                optimizer='adam',
+                metrics=['accuracy'])
+
 
     # Define bath and epochs
     batch_size = {{choice([64, 128])}}
-    epochs = 200
+    epochs = 400
 
     # Callbacks and fitting model
     lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9,
@@ -244,4 +246,34 @@ def run():
 
     return best_run, best_model
 
+
+def run_2():
+    best_run, best_model = optim.minimize(
+        model=create_model,
+        data=data_2,
+        algo=tpe.suggest,
+        max_evals=10,
+        trials=Trials())
+
+    print("Best performing model chosen hyper-parameters:")
+    print(best_run)
+    print(best_model)
+
+    return best_run, best_model
+
+def run_3():
+    best_run, best_model = optim.minimize(
+        model=create_model,
+        data=data_2,
+        algo=tpe.suggest,
+        max_evals=10,
+        trials=Trials())
+
+    print("Best performing model chosen hyper-parameters:")
+    print(best_run)
+    print(best_model)
+
+    return best_run, best_model
+
 best_run, best_model = run()
+

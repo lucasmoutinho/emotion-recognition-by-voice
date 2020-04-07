@@ -31,15 +31,25 @@ from time_series_dataset_loader import TimeSeriesDatasetLoader
     #     self.log_file_name = "time_series_model.log"
 
 def data():
-    DATASET_PATH = '../datasets/Original/MFCC_2/'
+    DATASET_PATH = '../datasets/Original/MFCC/'
     checkpoint_file = 'models/model_checkpoints/original_window_2.h5'
-    DATASET_TYPE = 'emotion_type'
+    DATASET_TYPE = 'default'
 
     dataset_path = DATASET_PATH
     type_= DATASET_TYPE
+    
     # Importing X and y
     dataset_loader = TimeSeriesDatasetLoader(dataset_path)
     X, y = dataset_loader.get_dataset(type_=type_)
+    
+    new_dataset = []
+    for data_instance in X:
+        new_instance = []
+        for row in data_instance:
+            new_instance.append(row[2:])
+        new_dataset.append(new_instance)
+        
+    X = new_dataset    
     X = np.asarray(X)
     y = np.asarray(y)
 
@@ -50,23 +60,23 @@ def data():
             max_len = len(row)
     X = pad_sequences(X, maxlen=max_len, padding='post')
 
-    # Split the dataset in train and test
-    X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                        test_size=0.3)
 
     # Reshaping to apply smote
-    shape_0 = X_train.shape[0]
-    shape_1 = X_train.shape[1]
-    shape_2 = X_train.shape[2]
-    X_train = X_train.reshape(shape_0, shape_1 * shape_2)
+    shape_0 = X.shape[0]
+    shape_1 = X.shape[1]
+    shape_2 = X.shape[2]
+    X = X.reshape(shape_0, shape_1 * shape_2)
 
     # Apply SMOTE
     smt = SMOTE()
-    X_train, y_train = smt.fit_sample(X_train, y_train)
+    X, y_train = smt.fit_sample(X, y)
 
     # Reshaping back to original shape dimensions 1 and 2
-    X_train = X_train.reshape(X_train.shape[0], shape_1, shape_2)
+    X = X.reshape(X.shape[0], shape_1, shape_2)
 
+    # Split the dataset in train and test
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                        test_size=0.3)
     # Create categorical matrices
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)
