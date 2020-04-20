@@ -1,0 +1,3 @@
+{'run_name': 'run 2020-04-07-09-19', 'Best validation acc of epoch': 0.3512820601463318, 'average': 0.32051282051282054, 'grouped_average': 0.5461538461538461, 'dataset': '../datasets/2secsplit/MFCC_1/', 'optimizer': 'adam'}
+{'run_name': 'run 2020-04-07-10-01', 'Best validation acc of epoch': 0.3589743673801422, 'average': 0.31025641025641026, 'grouped_average': 0.5871794871794872, 'dataset': '../datasets/2secsplit/MFCC_1/', 'optimizer': 'adam'}
+{'run_name': 'run 2020-04-07-10-42', 'Best validation acc of epoch': 0.33076924085617065, 'average': 0.3, 'grouped_average': 0.5615384615384615, 'dataset': '../datasets/2secsplit/MFCC_1/', 'optimizer': 'adam'}
