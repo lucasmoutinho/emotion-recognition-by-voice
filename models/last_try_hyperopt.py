@@ -120,7 +120,7 @@ def create_model(X_train, y_train, X_test, y_test):
 
     # Define bath and epochs
     batch_size = 128
-    epochs = 1
+    epochs = 200
 
     # Callbacks and fitting model
     lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9,
