@@ -1,0 +1,13 @@
+[ 12.04.2020 - 21:40:14 ]
+    (MSG) [2] in SMILExtract : openSMILE starting!
+[ 12.04.2020 - 21:40:14 ]
+    (MSG) [2] in SMILExtract : config file is: /home/gabriel/Downloads/opensmile-2.3.0/config/chroma_fft.conf
+[ 12.04.2020 - 21:40:14 ]
+    (MSG) [2] in cComponentManager : successfully registered 95 component types.
+[ 12.04.2020 - 21:40:14 ]
+    (MSG) [2] in cComponentManager : successfully finished createInstances
+                                 (8 component instances were finalised, 1 data memories were finalised)
+[ 12.04.2020 - 21:40:14 ]
+    (MSG) [2] in cComponentManager : starting single thread processing loop
+[ 12.04.2020 - 21:40:14 ]
+    (MSG) [2] in cComponentManager : Processing finished! System ran for 264 ticks.
