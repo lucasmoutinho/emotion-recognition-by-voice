@@ -1,9 +1,9 @@
 import os
-# AUDIO_PATH = "../../SplittedAudios/1secsplit/"
-# OUTPUT_PATH = "Features/1SecSplitFeatures/"
+
 AUDIO_PATH = '../../Audios/'
-OUTPUT_PATH = 'Features/Original/MFCC_10/'
-OPENSMILE_CONFIG_FILEPATH = "./MFCC_CSV_OUT_10.conf"
+OUTPUT_PATH = 'Features/Original/Chroma/'
+# OPENSMILE_CONFIG_FILEPATH = "./MFCC_CSV_OUT_10.conf"
+OPENSMILE_CONFIG_FILEPATH = "~/Downloads/opensmile-2.3.0/config/chroma_fft.conf"
 
 
 class FeatureExtractor:
