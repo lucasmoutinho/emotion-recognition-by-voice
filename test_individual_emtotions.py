@@ -8,10 +8,15 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
-from modules.dataset_loader import DatasetLoader
 from datetime import datetime, timedelta
 from sklearn.model_selection import StratifiedKFold
 import json
+from modules.dataset_loader import DatasetLoader
+import random
+import math
+
+
+EMOTION_NUMBERS = [0,1,2,3,4,5,6]
 
 def add_padding(X,y):
     X = np.asarray(X)
@@ -71,8 +76,8 @@ def load_dataset():
         new_instance = []
         for row_index in range(0, len(mfcc_features[index])):
             new_row = np.concatenate(
-                (mfcc_features[index][row_index][2:],
-                prosody_features[index][row_index][2:]),
+                (mfcc_features[index][row_index],
+                prosody_features[index][row_index]),
                 axis= None
             )
             new_instance.append(new_row)
@@ -118,15 +123,58 @@ def apply_smote(X, y):
     
     return X,y
 
-def run(wanted_actors, run_name):
-    X_all,y_all = load_dataset()
-    indexes_of_actor = [ y_all.index(result) for result in filter(lambda instance: instance[1] in wanted_actors, y_all)]
-    y = [inst_y[0] for inst_y in y_all]
-    
-    X = np.take(X_all, indexes_of_actor)
-    y = np.take(y, indexes_of_actor)
+def wanted_emotion_indexes(wanted_emotion, y_all):
+    # selection of indexes of desired emotion
+    indexes = []
+    for i in range(0,len(y_all)):
+        if y_all[i][0] == wanted_emotion:
+            indexes.append(i)
+    return indexes
 
+def binary_emotion_label(wanted_emotion, y_all):
+    for i in range(0,len(y_all)):
+        if y_all[i][0] == wanted_emotion:
+            y_all[i][0] = 1
+        else:
+            y_all[i][0] = 0
+    return y_all
+
+def load_mock_dataset():
+    X = np.array([[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8]])
+    y = [[0,'f1'],[1,'f1'],[2,'f1'],[3,'f1'],[4,'f1'],[5,'f1'],[6,'f1'],[6,'f1'],[2,'f1']]
+    return X,y
+
+def run(wanted_emotion, run_name):
+    # Load dataset
+    X_all,y_all = load_dataset()
+    y_list = []
+    
+    # Create list of indexes for each emotion
+    for emotion in EMOTION_NUMBERS:
+        current_emotion_indexes = wanted_emotion_indexes(emotion,y_all)
+        y_list.append(current_emotion_indexes)
+    
+    # Create a list of wanted indexes containing all indexes for the desired emotion.
+    # That number will be the first half of the list, the other half will contain
+    # A slice of random indexes from the other emotions. This will result in a wanted list
+    # with half of indexes of the desired emotion and other half with other emotions
+    indexes_wanted = y_list[wanted_emotion]
+    half_dataset_number = len(y_list[wanted_emotion])
+    other_emotions_number = math.ceil(half_dataset_number/(len(EMOTION_NUMBERS)-1))
+    for emotion in EMOTION_NUMBERS:
+        if(emotion != wanted_emotion):
+            indexes_wanted = indexes_wanted + random.sample(y_list[emotion], other_emotions_number)
+    
+    # Adjust the labels as being the desired emotion or not
+    y_all = binary_emotion_label(wanted_emotion, y_all)
+    
+    # Create X and y
+    X = np.take(X_all, indexes_wanted)
+    y = [inst_y[0] for inst_y in y_all]
+    y = np.take(y, indexes_wanted)
     X = np.asarray(X)
+    
+    
     X, y = add_padding(X,y)
     X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                         stratify=y,
@@ -139,14 +187,15 @@ def run(wanted_actors, run_name):
     y_test_labels = y_test
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)
+    
     num_rows = X[0].shape[0]
     num_columns = X[0].shape[1]
     num_channels = 1
     X_train = X_train.reshape(X_train.shape[0], num_rows, num_columns,num_channels)
     X_test = X_test.reshape(X_test.shape[0], num_rows, num_columns,num_channels)
 
-    batch_size = 64
-    epochs = 400
+    batch_size = 16
+    epochs = 300
 
     model = Sequential()
     model.add(Conv2D(filters=128,
@@ -157,19 +206,14 @@ def run(wanted_actors, run_name):
     model.add(MaxPooling2D(pool_size=2))
     model.add(Dropout(0.2))
 
-    model.add(Conv2D(filters=128, kernel_size=2,
-                    activation='relu'))
-    model.add(MaxPooling2D(pool_size=2))
-    model.add(Dropout(0.2))
-
     model.add(Conv2D(filters=64, kernel_size=2,
                     activation='relu'))
     model.add(MaxPooling2D(pool_size=1))
     model.add(Dropout(0.2))
     model.add(GlobalAveragePooling2D())
-
-    model.add(Dense(7, activation='softmax'))
-    #test with sigmoid, tanh,
+    
+    model.add(Dense(2, activation='softmax'))
+    
     # Compile the keras model
     model.compile(loss='categorical_crossentropy',
                 optimizer='adam',
@@ -183,7 +227,7 @@ def run(wanted_actors, run_name):
     
     result = model.fit(X_train, y_train, batch_size=batch_size,
                 epochs=epochs, validation_data=(X_test, y_test),
-                callbacks=[mcp_save, lr_reduce], verbose=2)
+                callbacks=[mcp_save, lr_reduce], verbose=1)
     
     validation_acc = np.amax(result.history['val_accuracy'])
     
@@ -198,7 +242,6 @@ def run(wanted_actors, run_name):
     for predict in predictions:
         predictions_labels.append(predict.tolist().index(np.amax(predict)))
 
-
     correct = 0
     total = len(predictions_labels)
     for index in range(0, len(predictions_labels)):
@@ -208,30 +251,24 @@ def run(wanted_actors, run_name):
     print("average: {}".format(correct/total))
     info_average = correct/total
     
-    grouped_predictions = group_labels(predictions_labels)
-    grouped_test_labels = group_labels(y_test_labels)
-    correct = 0
-    total = len(grouped_predictions)
-    for index in range(0, len(grouped_predictions)):
-        if grouped_predictions[index] == grouped_test_labels[index]:
-            correct += 1
-
-    print("grouped average: {}".format(correct/total))
-    info_grouped_average = correct/total
-    
     return {'run_name': run_name, 'best_validation_acc': info_best_validation_acc, 
-            'average': info_average, 'grouped_average': info_grouped_average}
-    
+            'average': info_average}
+
+def translate_emotion_number(emotion_number):
+        return {
+            '0' : 'neu',
+            '1' : 'des',
+            '2' : 'med',
+            '3' : 'ale',
+            '4' : 'rai',
+            '5' : 'sur',
+            '6' : 'tri' 
+        }[str(emotion_number)]
 
 data = []
-for actor in ['f1','f2','f3','f4','f5','f6','m1','m2','m3','m4','m5','m6',
-              ['f1','f2','f3','f4','f5','f6'],
-              ['m1','m2','m3','m4','m5','m6']
-              ]:
-    run_name = str(actor)
-    wanted_actors = [actor] if actor.__class__ == str else actor
-    data.append(run(wanted_actors, run_name))
-    
+for emotion in EMOTION_NUMBERS:
+    run_name = translate_emotion_number(emotion)
+    data.append(run(emotion,run_name))
 
 print(data)
 
