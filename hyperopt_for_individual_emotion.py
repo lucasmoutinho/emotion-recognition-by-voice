@@ -39,7 +39,7 @@ def create_model(X_train, y_train, X_test, y_test):
         'filter_2': {{choice([32, 64, 128, 256, 564])}},
         'dropout_1': {{choice([0.2,0.4,0.6])}},
         'dropout_2': {{choice([0.2,0.4,0.6])}},
-        'optimizers': {{choice(['adam', 'sgd', 'rmsprop', 'adadelta'])}}
+        'optimizer': {{choice(['adam', 'sgd', 'rmsprop', 'adadelta'])}}
 
     }
     num_rows = X_train[0].shape[0]
@@ -50,25 +50,26 @@ def create_model(X_train, y_train, X_test, y_test):
     epochs = 400
 
     model = Sequential()
-    model.add(Conv2D(filters=128,
+    model.add(Conv2D(filters=CHOICES_DICT['filter_1'],
                      kernel_size=2,
                      input_shape=(num_rows, num_columns, num_channels),
                      activation='relu'))
 
     model.add(MaxPooling2D(pool_size=2))
-    model.add(Dropout(0.2))
+    model.add(Dropout(CHOICES_DICT['dropout_1']))
 
-    model.add(Conv2D(filters=64, kernel_size=2,
+    model.add(Conv2D(filters=CHOICES_DICT['filter_2'],
+                     kernel_size=2,
                      activation='relu'))
     model.add(MaxPooling2D(pool_size=1))
-    model.add(Dropout(0.2))
+    model.add(Dropout(CHOICES_DICT['dropout_2']))
     model.add(GlobalAveragePooling2D())
 
     model.add(Dense(2, activation='softmax'))
 
     # Compile the keras model
     model.compile(loss='categorical_crossentropy',
-                  optimizer='adam',
+                  optimizer=CHOICES_DICT['optimizer'],
                   metrics=['accuracy'])
 
     lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9,
@@ -105,6 +106,7 @@ def create_model(X_train, y_train, X_test, y_test):
 
     info_dict = {
         'run_name': RUN_NAME,
+        'choices': CHOICES_DICT,
         'best_validation_acc': info_best_validation_acc,
         'average': info_average,
         'f1': CustomMetrics().f1(predictions_labels, y_test_labels)
