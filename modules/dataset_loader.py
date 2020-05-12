@@ -1,12 +1,55 @@
 import os
 
 import pandas as pd
-
+import numpy as np
 
 class DatasetLoader:
 
-    def __init__(self, dataset_path):
+    def __init__(self, dataset_path=None):
         self.dataset_path = dataset_path
+
+    def compose_complete_dataset(self):
+        # TODO: set this as an argument
+        DATASET_PATH = 'datasets/Original/MFCC/'
+        dataset_loader = DatasetLoader(DATASET_PATH)
+        mfcc_features, y = dataset_loader.get_dataset()
+
+        DATASET_PATH = 'datasets/Original/Prosody/'
+        dataset_loader = DatasetLoader(DATASET_PATH)
+        prosody_features, y = dataset_loader.get_dataset()
+
+        new_dataset = []
+        for index in range(0, len(mfcc_features)):
+            new_instance = []
+            for row_index in range(0, len(mfcc_features[index])):
+                new_row = np.concatenate(
+                    (mfcc_features[index][row_index],
+                     prosody_features[index][row_index]),
+                    axis=None
+                )
+                new_instance.append(new_row)
+            new_dataset.append(new_instance)
+
+        X = new_dataset
+
+        DATASET_PATH = 'datasets/Original/Chroma/'
+        dataset_loader = DatasetLoader(DATASET_PATH)
+        chroma_features, y = dataset_loader.get_dataset()
+
+        new_dataset = []
+        for index in range(0, len(chroma_features)):
+            new_instance = []
+            for row_index in range(0, len(chroma_features[index])):
+                new_row = np.concatenate(
+                    (X[index][row_index],
+                     chroma_features[index][row_index]),
+                    axis=None
+                )
+                new_instance.append(new_row)
+            new_dataset.append(new_instance)
+
+        X = np.asarray(new_dataset)
+        return X, y
 
     def translate_emotion(self, file_path, type_='default'):
         filename = file_path.split('/')[-1]
