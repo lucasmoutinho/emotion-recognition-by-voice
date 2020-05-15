@@ -21,6 +21,7 @@ from hyperopt import Trials, STATUS_OK, tpe
 from hyperas import optim
 from hyperas.distributions import choice, uniform
 from modules.dataset_loader import DatasetLoader
+import os
 
 
 
@@ -51,7 +52,7 @@ def create_model(X_train, y_train, X_test, y_test):
     num_channels = 1
  
     batch_size = 16
-    epochs = 500
+    epochs = 300
         
     model = Sequential()
     model.add(Conv2D(filters={{choice([32, 64, 128, 256, 564])}},
@@ -70,8 +71,6 @@ def create_model(X_train, y_train, X_test, y_test):
     model.add(GlobalAveragePooling2D())
 
     model.add(Dense(2, activation='softmax'))
-    
-
         
     # Compile the keras model
     model.compile(loss='categorical_crossentropy',
@@ -112,6 +111,12 @@ def create_model(X_train, y_train, X_test, y_test):
         'best_validation_acc': info_best_validation_acc,
         'average': info_average,
         'config': str(model.summary)}
+    
+    if not os.path.exists("./hyperopt_results/"):
+        os.makedirs("hyperopt_results/")
+        
+    with open('hyperopt_results/{}.json'.format(RUN_NAME), 'w+') as outfile:
+        json.dump(json.dumps(info_dict), outfile)
     
     return {'loss': -validation_acc, 'status': STATUS_OK, 'model': model}
 
