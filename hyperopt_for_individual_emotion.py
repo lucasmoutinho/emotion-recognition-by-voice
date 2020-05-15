@@ -33,7 +33,7 @@ def data():
 
 
 def create_model(X_train, y_train, X_test, y_test):
-    WANTED_EMOTION = 0
+    WANTED_EMOTION = 1
     WANTED_EMOTION_NAME = {
         '0': 'neu',
         '1': 'des',
@@ -50,12 +50,12 @@ def create_model(X_train, y_train, X_test, y_test):
     num_rows = X_train[0].shape[0]
     num_columns = X_train[0].shape[1]
     num_channels = 1
- 
-    batch_size = 16
-    epochs = 300
+
+    batch_size = 64
+    epochs = 500
         
     model = Sequential()
-    model.add(Conv2D(filters={{choice([32, 64, 128, 256, 564])}},
+    model.add(Conv2D(filters={{choice([32, 64, 128, 256])}},
                      kernel_size=2,
                      input_shape=(num_rows, num_columns, num_channels),
                      activation='relu'))
@@ -63,7 +63,7 @@ def create_model(X_train, y_train, X_test, y_test):
     model.add(MaxPooling2D(pool_size=2))
     model.add(Dropout({{choice([0.2,0.4,0.6])}}))
 
-    model.add(Conv2D(filters={{choice([32, 64, 128, 256, 564])}},
+    model.add(Conv2D(filters={{choice([32, 64, 128, 256])}},
                      kernel_size=2,
                      activation='relu'))
     model.add(MaxPooling2D(pool_size=1))
