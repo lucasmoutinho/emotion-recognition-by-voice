@@ -33,7 +33,7 @@ def data():
 
 
 def create_model(X_train, y_train, X_test, y_test):
-    WANTED_EMOTION = 1
+    WANTED_EMOTION = 6
     WANTED_EMOTION_NAME = {
         '0': 'neu',
         '1': 'des',
