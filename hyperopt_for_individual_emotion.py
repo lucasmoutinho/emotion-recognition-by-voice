@@ -92,7 +92,7 @@ def create_model(X_train, y_train, X_test, y_test):
                        callbacks=[mcp_save, lr_reduce], verbose=1)
     
     validation_acc = np.amax(result.history['val_accuracy'])
-    model.load_weights(RUN_NAME+".h5")
+    model.load_weights("hyperopt_results/{}/{}.h5".format(WANTED_EMOTION_NAME, RUN_NAME))
 
     print('Best validation acc of epoch:', validation_acc)
     info_best_validation_acc = validation_acc
@@ -128,7 +128,7 @@ def run():
         model=create_model,
         data=data,
         algo=tpe.suggest,
-        max_evals=30,
+        max_evals=20,
         trials=Trials()
     )
 
