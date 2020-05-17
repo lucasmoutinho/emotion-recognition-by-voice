@@ -1,0 +1,1 @@
+"{\"run_name\": \"tri202005161642\", \"best_validation_acc\": 0.7254902124404907, \"average\": 0.7254901960784313, \"config\": \"<bound method Network.summary of <keras.engine.sequential.Sequential object at 0x7f2ecc04cd68>>\"}"
