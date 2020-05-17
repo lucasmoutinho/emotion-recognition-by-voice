@@ -33,7 +33,7 @@ def data():
 
 
 def create_model(X_train, y_train, X_test, y_test):
-    WANTED_EMOTION = 1
+    WANTED_EMOTION = 0
     WANTED_EMOTION_NAME = {
         '0': 'neu',
         '1': 'des',
@@ -51,8 +51,8 @@ def create_model(X_train, y_train, X_test, y_test):
     num_columns = X_train[0].shape[1]
     num_channels = 1
 
-    batch_size = 64
-    epochs = 500
+    batch_size = 128
+    epochs = 300
         
     model = Sequential()
     model.add(Conv2D(filters={{choice([32, 64, 128, 256])}},
@@ -73,13 +73,18 @@ def create_model(X_train, y_train, X_test, y_test):
     model.add(Dense(2, activation='softmax'))
         
     # Compile the keras model
+    
+    if not os.path.exists("./hyperopt_results/{}".format(WANTED_EMOTION_NAME)):
+        os.makedirs("hyperopt_results/{}".format(WANTED_EMOTION_NAME))
+        
+
     model.compile(loss='categorical_crossentropy',
-                  optimizer={{choice(['adam', 'sgd', 'rmsprop', 'adadelta'])}},
+                  optimizer={{choice(['adam', 'sgd', 'rmsprop'])}},
                   metrics=['accuracy'])
 
     lr_reduce = ReduceLROnPlateau(monitor='val_loss', factor=0.9,
                                   patience=20, min_lr=0.000001)
-    mcp_save = ModelCheckpoint(RUN_NAME+".h5",
+    mcp_save = ModelCheckpoint("hyperopt_results/{}/{}.h5".format(WANTED_EMOTION_NAME, RUN_NAME),
                                save_best_only=True, monitor='val_accuracy',
                                mode='max')
     result = model.fit(X_train, y_train, batch_size=batch_size,
@@ -109,13 +114,10 @@ def create_model(X_train, y_train, X_test, y_test):
     info_dict = {
         'run_name': RUN_NAME,
         'best_validation_acc': info_best_validation_acc,
-        'average': info_average,
-        'config': str(model.summary)}
-    
-    if not os.path.exists("./hyperopt_results/"):
-        os.makedirs("hyperopt_results/")
+        'average': info_average
+    }
         
-    with open('hyperopt_results/{}.json'.format(RUN_NAME), 'w+') as outfile:
+    with open('hyperopt_results/{}/{}.json'.format(WANTED_EMOTION_NAME, RUN_NAME), 'w+') as outfile:
         json.dump(json.dumps(info_dict), outfile)
     
     return {'loss': -validation_acc, 'status': STATUS_OK, 'model': model}
@@ -126,7 +128,7 @@ def run():
         model=create_model,
         data=data,
         algo=tpe.suggest,
-        max_evals=10,
+        max_evals=30,
         trials=Trials()
     )
 
