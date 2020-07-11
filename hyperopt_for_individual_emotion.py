@@ -22,11 +22,12 @@ from hyperas import optim
 from hyperas.distributions import choice, uniform
 from modules.dataset_loader import DatasetLoader
 import os
+import sys
 
 
 
 def data():
-    WANTED_EMOTION = 0
+    WANTED_EMOTION = int(sys.argv[1])
     dataset = DatasetManipulation()
     X_train, y_train, X_test, y_test = dataset.get_train_test_split_for_emotion(WANTED_EMOTION)
     return X_train, y_train, X_test, y_test
@@ -136,6 +137,5 @@ def run():
     print(best_run)
     print(best_model)
     return best_run, best_model
-
 
 best_run, best_model = run()

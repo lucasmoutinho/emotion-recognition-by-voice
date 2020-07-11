@@ -13,14 +13,9 @@ import numpy as np
 class DatasetManipulation:
     EMOTION_NUMBERS = [0, 1, 2, 3, 4, 5, 6]
 
-    def add_padding(self, X, y):
+    def add_padding(self, X, y, max_len):
         X = np.asarray(X)
         y = np.asarray(y)
-
-        max_len = len(X[0])
-        for row in X:
-            if len(row) > max_len:
-                max_len = len(row)
 
         X = pad_sequences(X, maxlen=max_len, padding='post', dtype='float64')
         return X, y
@@ -84,13 +79,18 @@ class DatasetManipulation:
         # Adjust the labels as being the desired emotion or not
         y_all = self.binary_emotion_label(wanted_emotion, y_all)
 
+        max_len = len(np.asarray(X_all)[0])
+        for row in np.asarray(X_all):
+            if len(row) > max_len:
+                max_len = len(row)
+
         # Create X and y
         X = np.take(X_all, indexes_wanted)
         y = [inst_y[0] for inst_y in y_all]
         y = np.take(y, indexes_wanted)
         X = np.asarray(X)
+        X, y = self.add_padding(X, y, max_len)
 
-        X, y = self.add_padding(X, y)
         X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             stratify=y,
                                                             test_size=0.3)
