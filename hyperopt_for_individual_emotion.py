@@ -34,7 +34,7 @@ def data():
 
 
 def create_model(X_train, y_train, X_test, y_test):
-    WANTED_EMOTION = 0
+    WANTED_EMOTION = sys.argv[1] 
     WANTED_EMOTION_NAME = {
         '0': 'neu',
         '1': 'des',
