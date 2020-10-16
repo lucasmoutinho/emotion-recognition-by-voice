@@ -1,0 +1,5 @@
+{'run_name': 'run 2020-04-06-23-25', 'Best validation acc of epoch': 0.37142857909202576, 'average': 0.32, 'grouped_average': 0.5314285714285715, 'dataset': '../datasets/Original/MFCC/', 'optimizer': 'adam'}
+{'run_name': 'run 2020-04-07-01-32', 'Best validation acc of epoch': 0.34285715222358704, 'average': 0.3171428571428571, 'grouped_average': 0.5971428571428572, 'dataset': '../datasets/Original/MFCC/', 'optimizer': 'rmsprop'}
+{'run_name': 'run 2020-04-07-03-37', 'Best validation acc of epoch': 0.2971428632736206, 'average': 0.26857142857142857, 'grouped_average': 0.6057142857142858, 'dataset': '../datasets/Original/MFCC/', 'optimizer': 'sgd'}
+{'run_name': 'run 2020-04-07-05-42', 'Best validation acc of epoch': 0.32309216260910034, 'average': 0.28642220019821607, 'grouped_average': 0.5678889990089198, 'dataset': '../datasets/1secsplit/MFCC_1/', 'optimizer': 'adam'}
+{'run_name': 'run 2020-04-07-06-43', 'Best validation acc of epoch': 0.34871795773506165, 'average': 0.3213675213675214, 'grouped_average': 0.6102564102564103, 'dataset': '../datasets/2secsplit/MFCC_1/', 'optimizer': 'adam'}

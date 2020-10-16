@@ -1,0 +1,9 @@
+"[
+	{\"run_name\": \"neu\", \"best_validation_acc\": 0.7450980544090271, \"average\": 0.7450980392156863}, 
+	{\"run_name\": \"des\", \"best_validation_acc\": 0.7843137383460999, \"average\": 0.7843137254901961}, 
+	{\"run_name\": \"med\", \"best_validation_acc\": 0.6000000238418579, \"average\": 0.6}, 
+	{\"run_name\": \"ale\", \"best_validation_acc\": 0.6960784196853638, \"average\": 0.696078431372549}, 
+	{\"run_name\": \"rai\", \"best_validation_acc\": 0.7156862616539001, \"average\": 0.7156862745098039}, 
+	{\"run_name\": \"sur\", \"best_validation_acc\": 0.7647058963775635, \"average\": 0.7647058823529411}, 
+	{\"run_name\": \"tri\", \"best_validation_acc\": 0.7156862616539001, \"average\": 0.7156862745098039}
+]"
